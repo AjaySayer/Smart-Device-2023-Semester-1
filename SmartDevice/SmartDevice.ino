@@ -28,4 +28,22 @@ void setup() {
 
 void loop() {
   // put your main code here, to run repeatedly:
+  
+
+
+  
+  delay(250);
 }
+
+/*
+ Controls the speed of the engine, using the potentiometer 
+
+ @params none
+ @returns none
+ */
+ 
+void engineSpeed(){
+  
+}
+
+void 
