@@ -46,10 +46,10 @@ flowchart TD
 
     lineSensorDecision-->|yes|DCMotor
 
-    DCMotor(Start/Stop DC motor & activate Piezo)
+    DCMotor(Start/Stop DC motor)
     DCMotor-->complete
 
-    lineSensorDecision-->complete
+    lineSensorDecision-->|no|complete
 
     complete([End])
 ```
@@ -60,14 +60,14 @@ flowchart TD
 
     crashSensorInput-->crashSensorDecision
 
-    crashSensorDecision{Does the Crash Sensor <br/>Detect Something?}
+    crashSensorDecision{Has the Crash Sensor<br/>Been Pressed?}
 
     crashSensorDecision-->|yes|crashSensor
 
     crashSensor(Activate Piezo)
     crashSensor-->complete
 
-    crashSensorDecision-->complete
+    crashSensorDecision-->|no|complete
 
     complete([End])
 ```

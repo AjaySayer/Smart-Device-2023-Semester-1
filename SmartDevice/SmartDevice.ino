@@ -36,7 +36,7 @@ void loop() {
 }
 
 /*
- Controls the speed of the engine, using the potentiometer 
+ The user controls the speed of the engine (DC Motor) using the potentiometer (Accelerator)
 
  @params none
  @returns none
@@ -46,4 +46,54 @@ void engineSpeed(){
   
 }
 
-void 
+
+/*
+ The Sonar will activate the Ejector seat (Servo Motor)
+
+ @params none
+ @returns none
+ */
+
+void ejectorSeat() {
+
+  
+}
+
+
+/*
+ The line sensor will turn the engine (DC Motor) on or off
+
+ @params none
+ @returns none
+ */
+
+void engineStart() {
+
+  
+}
+
+
+/*
+ The GPS will track the wheelchair and use the traffic lights to do stuff
+
+ @params none
+ @returns none
+ */
+
+void trackingSystem() {
+
+  
+}
+
+
+/*
+ The self destruct button (Crash Sensor) will blow up the Vehicle (Piezo)
+
+ @params none
+ @returns none
+ */
+
+void selfDestruct() {
+
+  
+}
