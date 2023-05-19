@@ -17,7 +17,7 @@ flowchart TD
 ```
 
 
-## Sonar 
+## Sonar (Ejector Seat)
 ```mermaid 
 flowchart TD
     sonarInput([Sonar Input])
@@ -26,16 +26,16 @@ flowchart TD
 
     sonarDecision{Does the sonar <br/> detect something?}
 
-    sonarDecision-->|yes|slowDown
+    sonarDecision-->|yes|eject
 
-    slowDown(Slow down DC motor </br>& Brighten red traffic light)
-    slowDown-->complete
+    eject(Activate the Servo)
+    eject-->complete
 
     sonarDecision-->|no|complete
 
     complete([End])
 ```
-## Line Sensor 
+## Line Sensor (Start/Stop Engine)
  ```mermaid
  flowchart TD
     lineSensorInput([Line Sensor Input])
@@ -53,7 +53,7 @@ flowchart TD
 
     complete([End])
 ```
-## Crash Sensor
+## Crash Sensor (Self Destruct)
  ```mermaid
  flowchart TD
     crashSensorInput([Crash Sensor Input])
@@ -68,6 +68,42 @@ flowchart TD
     crashSensor-->complete
 
     crashSensorDecision-->|no|complete
+
+    complete([End])
+```
+## Potentiometer (Engine Speed)
+ ```mermaid
+ flowchart TD
+    potInput([Potentiometer Input])
+
+    potInput-->potDecision
+
+    potDecision{Has the Value of the <br>Potentiometer changed?}
+
+    potDecision-->|yes|potentiometer
+
+    potentiometer(Alter speed of DC Motor)
+    potentiometer-->complete
+
+    potDecision-->|no|complete
+
+    complete([End])
+```
+## GPS?? (Traffic Lights and stuff)
+ ```mermaid
+ flowchart TD
+    GPS([Crash Sensor Input])
+
+    GPS-->GPSLogic
+
+    GPSLogic{Is the yet to be decided GPS Logic <br>doing getting the output required to do something?}
+
+    GPSLogic-->|yes|GPSOutput
+
+    GPSOutput(Do stuff, probably <br>traffic light related stuff)
+    GPSOutput-->complete
+
+    GPSLogic-->|no|complete 
 
     complete([End])
 ```
