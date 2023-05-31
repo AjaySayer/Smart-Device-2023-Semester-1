@@ -10,12 +10,34 @@ DateTime rightNow;  // used to store the current time.
 // SD Card - Confirm Pin
 #define SDpin 53
 
-//DC Motor 
+// DC Motor 
 int E1 = 6;
-int M1 = 7;
+int M1 = 5;
 
-//Potentiometer
+// Servo
+#include <Servo.h>
+Servo myservo;
+
+// Potentiometer
 #define pot A3
+
+// Line Sensor
+#define lineSensorPin 3
+
+// Piezo Buzzer
+#define piezoPin 8
+
+// Traffic Lights - LED Outputs
+#define ledRed A0
+#define ledYellow A1 
+#define ledGreen A2
+
+// Sonar - HC-SR04
+#define echoPin 6 // attach pin D2 Arduino to pin Echo of HC-SR04
+#define trigPin A4 //attach pin D3 Arduino to pin Trig of HC-SR04
+
+// Crash Sensor / Button
+#define crashSensor 7
 
 void setup() {
   // put your setup code here, to run once:
@@ -24,6 +46,10 @@ void setup() {
     delay(1);  // wait for serial port to connect. Needed for native USB port only
   }
 
+ digitalWrite(ledRed, HIGH);
+  digitalWrite(ledYellow, HIGH);
+  digitalWrite(ledGreen, HIGH);
+  
   // SD Card initialisation
   Serial.print("Initializing SD card...");
   if (!SD.begin(SDpin)) {
@@ -37,14 +63,56 @@ void setup() {
   Serial.println("initialization done.");
   logEvent("System Initialisation...");
 
+   // Traffic Lights - LED Outputs
+  pinMode(ledRed, OUTPUT);
+  pinMode(ledYellow, OUTPUT);
+  pinMode(ledGreen, OUTPUT);
+  
+  // DC Motor
+  pinMode(M1, OUTPUT);
+
+  // Servo
+  myservo.attach(9);  // attaches the servo on pin 9 to the servo object
+
+  //Potentiometer
+  pinMode(pot, INPUT);
+
+  // Piezo Buzzer
+  pinMode(piezoPin,OUTPUT);
+
+  // Sonar - HC-SR04
+  pinMode(trigPin, OUTPUT); // Sets the trigPin as an OUTPUT
+  pinMode(echoPin, INPUT); // Sets the echoPin as an INPUT
+
+  // Line Sensor
+  pinMode(lineSensorPin, OUTPUT);
+
+  // Crash Sensor / Button
+  pinMode(crashSensor, INPUT);
 }
 
 void loop() {
   // put your main code here, to run repeatedly:
 
+  int potValue = analogRead(pot);            // reads the value of the potentiometer (value between 0 and 1023)
+
+  Serial.print("potValue is: ");
+  Serial.println(potValue);
 
 
 
+  digitalWrite(ledRed, HIGH);
+  digitalWrite(ledYellow, HIGH);
+  digitalWrite(ledGreen, HIGH);
+
+
+  //Serial.println("test");
+  int speedValue = 255; // Can be 0-255.
+  digitalWrite(M1,HIGH);
+  analogWrite(E1, 255);   //PWM Speed Control
+
+  //ejectorSeat();
+  
   delay(250);
 }
 
@@ -68,8 +136,14 @@ void engineSpeed() {
 */
 
 void ejectorSeat() {
-
-
+// Servo position values range from 0-180
+  int servoPos = 0;
+  myservo.write(servoPos);
+  delay(5000);
+  // Servo position values range from 0-180
+  servoPos = 180;
+  myservo.write(servoPos);
+  delay(5000);
 }
 
 
