@@ -39,6 +39,8 @@ Servo myservo;
 // Crash Sensor / Button
 #define crashSensor 7
 
+
+
 void setup() {
   // put your setup code here, to run once:
   Serial.begin(9600);  // Open serial communications and wait for port to open:
@@ -107,10 +109,7 @@ void loop() {
 
 
   //Serial.println("test");
-  int speedValue = 255; // Can be 0-255.
-  digitalWrite(M1,HIGH);
-  analogWrite(E1, 255);   //PWM Speed Control
-
+  engineSpeed(potValue);
   //ejectorSeat();
   
   delay(250);
@@ -123,8 +122,10 @@ void loop() {
   @returns none
 */
 
-void engineSpeed() {
-
+void engineSpeed(int speedValue) {
+  digitalWrite(M1,HIGH);
+  analogWrite(E1, speedValue);   //PWM Speed Control
+  Serial.println("bruh");
 }
 
 
@@ -139,11 +140,11 @@ void ejectorSeat() {
 // Servo position values range from 0-180
   int servoPos = 0;
   myservo.write(servoPos);
-  delay(5000);
+  delay(50);
   // Servo position values range from 0-180
   servoPos = 180;
   myservo.write(servoPos);
-  delay(5000);
+  delay(50);
 }
 
 
