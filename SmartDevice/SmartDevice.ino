@@ -87,12 +87,12 @@ void setup() {
   pinMode(echoPin, INPUT); // Sets the echoPin as an INPUT
 
   // Line Sensor
-  pinMode(lineSensorPin, OUTPUT);
+  pinMode(lineSensorPin, INPUT);
 
   // Crash Sensor / Button
   pinMode(crashSensor, INPUT);
 }
-
+int thing = 0;
 void loop() {
   // put your main code here, to run repeatedly:
 
@@ -101,15 +101,33 @@ void loop() {
   Serial.print("potValue is: ");
   Serial.println(potValue);
 
+  int lineSensorValue = digitalRead(lineSensorPin);
+  Serial.print("lineSensorValue is: ");
+  Serial.println(lineSensorValue);
+  if(lineSensorValue == 1) {
+    thing++;
+  }
+  if (thing > 1) {
+    thing = 0;
+  }
 
-
-  digitalWrite(ledRed, HIGH);
+  boolean button = digitalRead(crashSensor);
+  Serial.println(button);
+  if (button == 0) {
+    tone(piezoPin, 100);
+  } else {
+    tone(piezoPin, 0);
+    
+  }
+  Serial.println(thing);
   digitalWrite(ledYellow, HIGH);
-  digitalWrite(ledGreen, HIGH);
 
-
-  //Serial.println("test");
-  engineSpeed(potValue);
+  
+  
+  
+  
+  
+  engineSpeed( thing);
   //ejectorSeat();
   
   delay(250);
@@ -121,11 +139,26 @@ void loop() {
   @params none
   @returns none
 */
-
-void engineSpeed(int speedValue) {
+void engineSpeed(int engineOn) {
+  int speed = analogRead(pot);            // reads the value of the potentiometer (value between 0 and 1023)
+  
+  speed = speed/4;
+  if (engineOn == 1) {
   digitalWrite(M1,HIGH);
-  analogWrite(E1, speedValue);   //PWM Speed Control
-  Serial.println("bruh");
+  analogWrite(E1, speed);   //PWM Speed Control
+  Serial.print("Engine speed is: ");
+  Serial.println(speed);
+  digitalWrite(ledRed, LOW);
+  digitalWrite(ledGreen, HIGH);
+  }
+  
+  if (engineOn == 0) {
+  Serial.println("Engine OFF");
+  digitalWrite(M1,HIGH);
+  analogWrite(E1, 0);   //PWM Speed Control
+  digitalWrite(ledRed, HIGH);
+  digitalWrite(ledGreen, LOW);
+  }
 }
 
 
@@ -138,13 +171,12 @@ void engineSpeed(int speedValue) {
 
 void ejectorSeat() {
 // Servo position values range from 0-180
+  
   int servoPos = 0;
   myservo.write(servoPos);
-  delay(50);
   // Servo position values range from 0-180
   servoPos = 180;
   myservo.write(servoPos);
-  delay(50);
 }
 
 
@@ -156,7 +188,7 @@ void ejectorSeat() {
 */
 
 void engineStart() {
-
+  
 
 }
 
