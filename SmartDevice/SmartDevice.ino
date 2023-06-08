@@ -39,13 +39,8 @@ Servo myservo;
 // Crash Sensor / Button
 #define crashSensor 7
 
-// IR Remote
-#include <IRremote.h>
-#define IR_INPUT_PIN 4
-IRrecv irrecv(IR_INPUT_PIN);
-decode_results results;
-
-
+// Passive Infrared Sensor
+#define pirPin 2
 
 void setup() {
   // put your setup code here, to run once:
@@ -54,7 +49,7 @@ void setup() {
     delay(1);  // wait for serial port to connect. Needed for native USB port only
   }
 
- digitalWrite(ledRed, HIGH);
+  digitalWrite(ledRed, HIGH);
   digitalWrite(ledYellow, HIGH);
   digitalWrite(ledGreen, HIGH);
   
@@ -98,18 +93,12 @@ void setup() {
   // Crash Sensor / Button
   pinMode(crashSensor, INPUT);
 
-  // IR Remote
-  irrecv.enableIRIn();
+  //PIR
+  pinMode(pirPin, INPUT);
 }
 
 void loop() { // The loop function simply calls all of the functions
   // put your main code here, to run repeatedly:
-
-  //Serial.println(digitalRead(IR_INPUT_PIN));
-  if (irrecv.decode(&results)){
-        Serial.println(results.value, HEX);
-        irrecv.resume();
-  }
   
   //engineControl(engineActive(),engineSpeed());
   //ejectorSeat();
@@ -117,14 +106,12 @@ void loop() { // The loop function simply calls all of the functions
   
   delay(200);
 }
-
 /*
   This function makes the line sensor act as a sort of switch, using it to turn the engine(DC motor) on and off
 
   @params none
   @returns engineStatus
 */
-
 boolean engineActive() {
   static int engineStatus = 0;
   boolean lineSensorValue = digitalRead(lineSensorPin);
@@ -179,8 +166,6 @@ void engineControl(boolean engineActive, int engineSpeed) {
     digitalWrite(ledGreen, LOW);
   }
 }
-
-
 /*
   This function takes the input from the sonar and uses it to activate the ejector seat(servo) and turn on/off the yellow traffic light.
   when something is detected in less than 20cm (more like 7 in real life) this function will activate the servo, swinging it in the opposite direction
@@ -190,10 +175,10 @@ void engineControl(boolean engineActive, int engineSpeed) {
   @params none
   @returns none
 */
-
 void ejectorSeat() {
   long duration;
   int distance;
+  int motion = digitalRead(pirPin);
   static int servoPos = 0;
   // Generate a short pulse to trigger the sonar sensor
   digitalWrite(trigPin, LOW);
@@ -208,7 +193,8 @@ void ejectorSeat() {
   // Calculate the distance in centimeters
   distance = duration * 0.034 / 2;
   
-  if (distance < 20) { // When the distance is less than 20cm, this if statement activates the servo and turns on the yellow traffic light, and vice versa
+  if (distance < 20 || motion == HIGH) { // When the distance is less than 20cm, this if statement activates the servo and turns on the yellow traffic light, and vice versa
+    Serial.println("Motion detected");
     digitalWrite(ledYellow, HIGH);
     servoPos = 180; // Servo position values range from 0-180
     myservo.write(servoPos);
@@ -218,36 +204,18 @@ void ejectorSeat() {
     myservo.write(servoPos);
   }
 }
-
-
-/*
-  The GPS will track the wheelchair and use the traffic lights to do stuff
-
-  @params none
-  @returns none
-*/
-
-void trackingSystem() {
-
-
-}
-
-
 /*
   This function takes the input from the button and uses it to play 2 short beeps on the peizo when pressed
 
   @params none
   @returns none
 */
-
 void selfDestruct() {
   bool isPressed = digitalRead(crashSensor);
   if (isPressed == LOW) {
     for (int i = 0; i < 2; i++) {
     tone(piezoPin, 1000, 200);  // Play a tone at 1000 Hz for 200 milliseconds
     delay(300);  // Wait for 300 milliseconds between beeps
+    }
   }
-    
-  }
-  
 }
