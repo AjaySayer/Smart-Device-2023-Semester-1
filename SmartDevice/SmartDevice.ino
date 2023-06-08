@@ -33,11 +33,17 @@ Servo myservo;
 #define ledGreen A2
 
 // Sonar - HC-SR04
-#define echoPin 6 // attach pin D2 Arduino to pin Echo of HC-SR04
+#define echoPin 2 // attach pin D2 Arduino to pin Echo of HC-SR04
 #define trigPin A4 //attach pin D3 Arduino to pin Trig of HC-SR04
 
 // Crash Sensor / Button
 #define crashSensor 7
+
+// IR Remote
+#include <IRremote.h>
+#define IR_INPUT_PIN 4
+IRrecv irrecv(IR_INPUT_PIN);
+decode_results results;
 
 
 
@@ -91,105 +97,126 @@ void setup() {
 
   // Crash Sensor / Button
   pinMode(crashSensor, INPUT);
+
+  // IR Remote
+  irrecv.enableIRIn();
 }
-int thing = 0;
-void loop() {
+
+void loop() { // The loop function simply calls all of the functions
   // put your main code here, to run repeatedly:
 
-  int potValue = analogRead(pot);            // reads the value of the potentiometer (value between 0 and 1023)
+  //Serial.println(digitalRead(IR_INPUT_PIN));
+  if (irrecv.decode(&results)){
+        Serial.println(results.value, HEX);
+        irrecv.resume();
+  }
+  
+  //engineControl(engineActive(),engineSpeed());
+  //ejectorSeat();
+  //selfDestruct();
+  
+  delay(200);
+}
 
-  Serial.print("potValue is: ");
-  Serial.println(potValue);
+/*
+  This function makes the line sensor act as a sort of switch, using it to turn the engine(DC motor) on and off
 
-  int lineSensorValue = digitalRead(lineSensorPin);
+  @params none
+  @returns engineStatus
+*/
+
+boolean engineActive() {
+  static int engineStatus = 0;
+  boolean lineSensorValue = digitalRead(lineSensorPin);
   Serial.print("lineSensorValue is: ");
   Serial.println(lineSensorValue);
   if(lineSensorValue == 1) {
-    thing++;
+    engineStatus++;
   }
-  if (thing > 1) {
-    thing = 0;
+  if (engineStatus > 1) {
+    engineStatus = 0;
   }
-
-  boolean button = digitalRead(crashSensor);
-  Serial.println(button);
-  if (button == 0) {
-    tone(piezoPin, 100);
-  } else {
-    tone(piezoPin, 0);
-    
-  }
-  Serial.println(thing);
-  digitalWrite(ledYellow, HIGH);
-
-  
-  
-  
-  
-  
-  engineSpeed( thing);
-  //ejectorSeat();
-  
-  delay(250);
+  return engineStatus;
 }
-
 /*
-  The user controls the speed of the engine (DC Motor) using the potentiometer (Accelerator)
-
+  Takes input from the potentiometer and divides it by 4 so that the DC motor can function when more than 1/4th the
+  potentiometer is being used
+   
   @params none
-  @returns none
+  @returns speed
 */
-void engineSpeed(int engineOn) {
-  int speed = analogRead(pot);            // reads the value of the potentiometer (value between 0 and 1023)
-  
-  speed = speed/4;
-  if (engineOn == 1) {
-  digitalWrite(M1,HIGH);
-  analogWrite(E1, speed);   //PWM Speed Control
+int engineSpeed() {
+  int potValue = analogRead(pot);
+  Serial.print("potValue is: ");
+  Serial.println(potValue);
+  int speed = potValue/4; // Potentiometer inputs between 0-1024, DC motor only takes 0-256 so dividing the input by 4 keeps things simple
   Serial.print("Engine speed is: ");
   Serial.println(speed);
-  digitalWrite(ledRed, LOW);
-  digitalWrite(ledGreen, HIGH);
+  return speed;
+}
+/*
+  Using the input from the engineActive and engineSpeed functions (the line sensor and potentiometer) this function controls the engine (DC motor)
+  turning it on/off and altering the speed based on the input from the functions
+
+  @params engineActive, engineSpeed
+  @returns none
+*/
+void engineControl(boolean engineActive, int engineSpeed) {
+  if (engineActive == 1) {
+    digitalWrite(M1,HIGH);
+    analogWrite(E1, engineSpeed);   //PWM Speed Control
+    Serial.print("Engine speed is: ");
+    Serial.println(engineSpeed);
+    digitalWrite(ledRed, LOW);
+    digitalWrite(ledGreen, HIGH);
   }
   
-  if (engineOn == 0) {
-  Serial.println("Engine OFF");
-  digitalWrite(M1,HIGH);
-  analogWrite(E1, 0);   //PWM Speed Control
-  digitalWrite(ledRed, HIGH);
-  digitalWrite(ledGreen, LOW);
+  if (engineActive == 0) {
+    Serial.println("Engine OFF");
+    digitalWrite(M1,HIGH);
+    analogWrite(E1, 0);   //PWM Speed Control
+    digitalWrite(ledRed, HIGH);
+    digitalWrite(ledGreen, LOW);
   }
 }
 
 
 /*
-  The Sonar will activate the Ejector seat (Servo Motor)
+  This function takes the input from the sonar and uses it to activate the ejector seat(servo) and turn on/off the yellow traffic light.
+  when something is detected in less than 20cm (more like 7 in real life) this function will activate the servo, swinging it in the opposite direction
+  and turn on the yellow traffic light. When nothing is detected the yellow traffic light turns off and the servo goes back to its
+  default position
 
   @params none
   @returns none
 */
 
 void ejectorSeat() {
-// Servo position values range from 0-180
+  long duration;
+  int distance;
+  static int servoPos = 0;
+  // Generate a short pulse to trigger the sonar sensor
+  digitalWrite(trigPin, LOW);
+  delayMicroseconds(2);
+  digitalWrite(trigPin, HIGH);
+  delayMicroseconds(10);
+  digitalWrite(trigPin, LOW);
   
-  int servoPos = 0;
-  myservo.write(servoPos);
-  // Servo position values range from 0-180
-  servoPos = 180;
-  myservo.write(servoPos);
-}
-
-
-/*
-  The line sensor will turn the engine (DC Motor) on or off
-
-  @params none
-  @returns none
-*/
-
-void engineStart() {
+  // Measure the time it takes for the sound wave to return
+  duration = pulseIn(echoPin, HIGH);
   
-
+  // Calculate the distance in centimeters
+  distance = duration * 0.034 / 2;
+  
+  if (distance < 20) { // When the distance is less than 20cm, this if statement activates the servo and turns on the yellow traffic light, and vice versa
+    digitalWrite(ledYellow, HIGH);
+    servoPos = 180; // Servo position values range from 0-180
+    myservo.write(servoPos);
+  } else {
+    digitalWrite(ledYellow, LOW);
+    servoPos = 0;
+    myservo.write(servoPos);
+  }
 }
 
 
@@ -207,13 +234,20 @@ void trackingSystem() {
 
 
 /*
-  The self destruct button (Crash Sensor) will blow up the Vehicle (Piezo)
+  This function takes the input from the button and uses it to play 2 short beeps on the peizo when pressed
 
   @params none
   @returns none
 */
 
 void selfDestruct() {
-
-
+  bool isPressed = digitalRead(crashSensor);
+  if (isPressed == LOW) {
+    for (int i = 0; i < 2; i++) {
+    tone(piezoPin, 1000, 200);  // Play a tone at 1000 Hz for 200 milliseconds
+    delay(300);  // Wait for 300 milliseconds between beeps
+  }
+    
+  }
+  
 }
