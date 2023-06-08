@@ -1,59 +1,65 @@
 # Programming Logic
-
-> For each behaviour, create the mermaid flowchart. Start each flowchart with a Heading naming the functionality. Delete this comment prior to submission.
-
-## title here bugrhu
-
+## Motor Control <br>- Ignition (Line Sensor, Red & Green LED) <br>- Accelerator (Potentiometer)
 ```mermaid
-flowchart TD
-    thing([start/end])
-    decision{decision}
-    id1(rounded corners)
-
-    decision-->|sick|id1
-
-    A-->B
-
-```
-
-
-## Sonar (Ejector Seat)
-```mermaid 
-flowchart TD
-    sonarInput([Sonar Input])
-
-    sonarInput-->sonarDecision
-
-    sonarDecision{Does the sonar <br/> detect something?}
-
-    sonarDecision-->|yes|eject
-
-    eject(Activate the Servo)
-    eject-->complete
-
-    sonarDecision-->|no|complete
-
-    complete([End])
-```
-## Line Sensor (Start/Stop Engine)
- ```mermaid
  flowchart TD
+    potInput([Potentiometer Input])
     lineSensorInput([Line Sensor Input])
 
     lineSensorInput-->lineSensorDecision
+    lineSensorDecision{Does the line sensor detect something?}
+    -->|Yes|switchFunction
+    switchFunction(Alternate boolean switch function<br> value)
+    switchFunction-->switchDecision
+    switchDecision{What is the boolean <br>switch function value?}
+    -->|1/TRUE|engineStart
+    engineStart("- Start DC motor<br>- Turn on Green LED<br>- Turn off Red LED")
+    -->engineSpeedDecision
 
-    lineSensorDecision{Does the Line Sensor <br/>Detect Something?}
+    switchDecision-->|0/FALSE|engineStop
+    engineStop("- Stop DC motor<br>- Turn off Green LED<br>- Turn on Red LED")
 
-    lineSensorDecision-->|yes|DCMotor
+    lineSensorDecision-->|No|complete
 
-    DCMotor(Start/Stop DC motor)
-    DCMotor-->complete
+    engineStart-->complete
+    engineStop-->complete
 
-    lineSensorDecision-->|no|complete
+    potInput-->potDecision
+    potDecision{Has the potentiometer input <br>value changed?}
+    -->|Yes|setSpeed
+    potDecision-->|No|complete
+    setSpeed(Take potentiometer input value and divide by 4)
+    -->engineSpeedDecision
+    engineSpeedDecision{Does the boolean switch <br>function value = 1/TRUE?}
+    -->|Yes|engineSpeed
+    engineSpeed(Set DC motor speed)
+    -->complete
 
     complete([End])
 ```
-## Crash Sensor (Self Destruct)
+## Ejector Seat (Sonar, PIR, Servo & Yellow LED)
+```mermaid 
+flowchart TD
+    sonarInput([Sonar Input])
+    PIRInput([PIR Input])
+
+    sonarInput-->Decision
+    PIRInput-->Decision
+
+    Decision{Has something been detected?}
+
+    Decision-->|yes|on
+
+    on(Activate the Servo & <br> turn on the yellow LED)
+    on-->complete
+
+    Decision-->|no|off
+    off(Turn off the yellow LED)
+    off-->complete
+
+
+    complete([End])
+```
+## Self Destruct (Crash sensor & Piezo)
  ```mermaid
  flowchart TD
     crashSensorInput([Crash Sensor Input])
@@ -64,46 +70,10 @@ flowchart TD
 
     crashSensorDecision-->|yes|crashSensor
 
-    crashSensor(Activate Piezo)
+    crashSensor(Make Piezo beep twice)
     crashSensor-->complete
 
     crashSensorDecision-->|no|complete
-
-    complete([End])
-```
-## Potentiometer (Engine Speed)
- ```mermaid
- flowchart TD
-    potInput([Potentiometer Input])
-
-    potInput-->potDecision
-
-    potDecision{Has the Value of the <br>Potentiometer changed?}
-
-    potDecision-->|yes|potentiometer
-
-    potentiometer(Alter speed of DC Motor)
-    potentiometer-->complete
-
-    potDecision-->|no|complete
-
-    complete([End])
-```
-## GPS?? (Traffic Lights and stuff)
- ```mermaid
- flowchart TD
-    GPS([Crash Sensor Input])
-
-    GPS-->GPSLogic
-
-    GPSLogic{Is the yet to be decided GPS Logic <br>doing getting the output required to do something?}
-
-    GPSLogic-->|yes|GPSOutput
-
-    GPSOutput(Do stuff, probably <br>traffic light related stuff)
-    GPSOutput-->complete
-
-    GPSLogic-->|no|complete 
 
     complete([End])
 ```
