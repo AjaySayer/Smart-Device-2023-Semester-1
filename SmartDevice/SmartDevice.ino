@@ -40,7 +40,7 @@ Servo myservo;
 #define crashSensor 7
 
 // Passive Infrared Sensor
-#define pirPin 2
+#define pirPin 4
 
 void setup() {
   // put your setup code here, to run once:
@@ -100,9 +100,10 @@ void setup() {
 void loop() { // The loop function simply calls all of the functions
   // put your main code here, to run repeatedly:
   
-  //engineControl(engineActive(),engineSpeed());
+  engineControl(engineActive(),engineSpeed());
   //ejectorSeat();
-  //selfDestruct();
+  servoControl(detectionSystem());
+  selfDestruct();
   
   delay(200);
 }
@@ -167,19 +168,17 @@ void engineControl(boolean engineActive, int engineSpeed) {
   }
 }
 /*
-  This function takes the input from the sonar and uses it to activate the ejector seat(servo) and turn on/off the yellow traffic light.
-  when something is detected in less than 20cm (more like 7 in real life) this function will activate the servo, swinging it in the opposite direction
-  and turn on the yellow traffic light. When nothing is detected the yellow traffic light turns off and the servo goes back to its
-  default position
+  This function gets detects input from the Sonar sensor and PIR and outputs a return value of 1 if something is detected, and 0 if nothing is detected.
 
   @params none
-  @returns none
+  @returns 1, 0
 */
-void ejectorSeat() {
+boolean detectionSystem() {
   long duration;
   int distance;
   int motion = digitalRead(pirPin);
-  static int servoPos = 0;
+  Serial.print("PIR value is: ");
+  Serial.println(motion);
   // Generate a short pulse to trigger the sonar sensor
   digitalWrite(trigPin, LOW);
   delayMicroseconds(2);
@@ -192,13 +191,31 @@ void ejectorSeat() {
   
   // Calculate the distance in centimeters
   distance = duration * 0.034 / 2;
-  
-  if (distance < 20 || motion == HIGH) { // When the distance is less than 20cm, this if statement activates the servo and turns on the yellow traffic light, and vice versa
-    Serial.println("Motion detected");
+
+  if (distance < 20 || motion == 1) {
+    return 1;
+  } else {
+    return 0;
+  }
+}
+/*
+  This function takes input from the detectionSystem function and uses it to activate the ejector seat(servo) and turn on/off the yellow traffic light.
+  when something is detected in less than 20cm (more like 7 in real life) this function will activate the servo, swinging it in the opposite direction
+  and turn on the yellow traffic light. When nothing is detected the yellow traffic light turns off and the servo goes back to its
+  default position
+
+  @params detection
+  @returns none
+*/
+void servoControl(boolean detection) {
+  static int servoPos = 0;
+  if (detection == 1) {
+  Serial.println("Something detected!");
     digitalWrite(ledYellow, HIGH);
     servoPos = 180; // Servo position values range from 0-180
     myservo.write(servoPos);
   } else {
+  Serial.println("Nothing detected!");
     digitalWrite(ledYellow, LOW);
     servoPos = 0;
     myservo.write(servoPos);
