@@ -4,9 +4,9 @@
 
 > Smart Wheelchair
 
-The idea is to make a smart wheelchair, a masterclass vehicle for any individual in need. This wheelchair will have many great functions, such as an engine to drive around, an ejector seat (just in case) and a self-destruct mechanism; for good measure. Along with some nice lights so everyone can see your cool wheelchair zipping around.
+The idea is to make a smart wheelchair, a masterclass vehicle for any individual in need. This wheelchair will have many great functions, such as an engine to drive around, an ejector seat (just in case) and a self-destruct mechanism; for good measure. Along with some nice lights to indicate whats happening.
 
-Within the confines of this assignment, a DC motor will function as the engine, with a potentiometer controlling its speed, and a line sensor turning it on and off. Its current state (on/off) will also be represented using the green and red LED’s (red for off, green for on)
+Within the confines of this assignment, a DC motor will function as the engine, with a potentiometer controlling its speed, with a line sensor turning it on and off. Its current state (on/off) will also be represented using the green and red LED’s (red for off, green for on)
 The servo will be emulating the ejector seat, which will be activated by the sonar when someone gets too close, or when the PIR detects movement, also turning on/off the yellow LED. In order to emulate the self-destruct mechanism, we will make the piezo beep a couple of times, activated by the crash sensor.
 The SD card will also be logging all relevant events.
 

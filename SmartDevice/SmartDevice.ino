@@ -116,10 +116,16 @@ void loop() {
   @returns engineIgnition
 */
 boolean engineIgnition() {
+  /* A static int is an integer that is only created once, despite being inside of a function that runs in a loop. If this wasnt a static int "igntionStatus"
+  would constantly be reset to 0, breaking the intended function of this function*/
   static int ignitionStatus = 0;
   boolean lineSensorValue = digitalRead(lineSensorPin);
+  /* All Serial.print(); and Serial.println(); statements should be replaced by logEvent(); However when the code tried to log something to 
+  the SD card, the code would freeze and cause everything to stop working. So Serial.print was used instead*/
   Serial.print("lineSensorValue is: ");
   Serial.println(lineSensorValue);
+  /* These two if statements make a loop that will increase the value of ignitionStatus whilst the Line sensor detects something, but sets it back to 0 once the value
+  of ignitionStatus goes over 1. this means that ignitionStatus only has two possible values, on(1)and off(0), which is what we need for our engine.*/
   if (lineSensorValue == 1) {
     ignitionStatus++;
   }
@@ -130,47 +136,47 @@ boolean engineIgnition() {
 }
 /*
   Takes input from the potentiometer and divides it by 4 so that the DC motor can function when more than 1/4th the
-  potentiometer is being used
+  potentiometer is being used. It is also possible to use "map" to do this, but I figured this is simpler than that.
    
   @params none
   @returns speed
 */
 int engineSpeed() {
   int potValue = analogRead(pot);
-  //Serial.print("potValue is: ");
+  //Serial.print("potValue is: "); <-- this information is no longer useful, commented out
   //Serial.println(potValue);
   int speed = potValue / 4;  // Potentiometer inputs between 0-1024, DC motor can only an input of 0-255 so dividing the input by 4 keeps things simple
-  Serial.print("Engine speed is: ");
-  Serial.println(speed);
+  //Serial.print("Engine speed is: "); <--- commented this out as it may be redundant due to the engineControl function printing the same thing, just never noticed
+  //Serial.println(speed);
   return speed;
 }
 /*
-  Using the input from the engineIgnition and engineSpeed functions (the line sensor and potentiometer) this function controls the engine (DC motor)
-  turning it on/off and altering the speed based on the input from the functions
+  Using the input from the engineIgnition and engineSpeed functions (the Line Sensor and Potentiometer) this function controls the engine (DC motor)
+  turning it on/off and altering the speed based on the input from the functions. It also turns on/off the Green and Red traffic lights accordingly
 
   @params engineIgnition, engineSpeed
   @returns none
 */
 void engineControl(boolean engineIgnition, int engineSpeed) {
-  if (engineIgnition == 1) { 
+  if (engineIgnition == 1) { // if the engine is on
     digitalWrite(M2, HIGH);
-    analogWrite(E2, engineSpeed);  //PWM Speed Control
-    Serial.print("Engine speed is: ");
+    analogWrite(E2, engineSpeed);  // control the speed using the potentiometer
+    Serial.print("Engine speed is: "); // print the speed of the engine
     Serial.println(engineSpeed);
-    digitalWrite(ledRed, LOW);
-    digitalWrite(ledGreen, HIGH);
+    digitalWrite(ledRed, LOW); // turn off the red traffic light
+    digitalWrite(ledGreen, HIGH); // turn on the green traffic light
   }
 
-  if (engineIgnition == 0) {
-    Serial.println("Engine OFF");
+  if (engineIgnition == 0) { // if the engine is off
+    Serial.println("Engine OFF"); // print that the engine is off
     digitalWrite(M2, HIGH);
-    analogWrite(E2, 0);  //PWM Speed Control
-    digitalWrite(ledRed, HIGH);
-    digitalWrite(ledGreen, LOW);
+    analogWrite(E2, 0); // set the speed to 0
+    digitalWrite(ledRed, HIGH); // turn on the red traffic light
+    digitalWrite(ledGreen, LOW); // turn off the green traffic light
   }
 }
 /*
-  This function  detects input from the Sonar sensor and the PIR and outputs a return value of 1 if something is detected, and 0 if nothing is detected.
+  This function detects input from the Sonar sensor and the PIR and outputs a return value of 1 if something is detected, and 0 if nothing is detected.
   unfortunately the PIR can be too sensitive and detect what seems to be nothing, meaning that the detectionSystem function is stuck returning 1, keeping the 
   servo fully activated and preventing the Sonar from doing its job. This function may also be responsible for a strange bug that causes the servo to randomly
   activate/deactivate for a few hundred milliseconds every now and again.
@@ -197,6 +203,7 @@ boolean detectionSystem() {
   // Calculate the distance in centimeters
   distance = duration * 0.034 / 2;
 
+  //if either the PIR or Sonar detects something return 1, otherwise return 0
   if (distance < 20 || motion == 1) {
     return 1;
   } else {
@@ -205,8 +212,9 @@ boolean detectionSystem() {
 }
 /*
   This function takes input from the detectionSystem function and uses it to activate the ejector seat(servo) and turn on/off the yellow traffic light.
-  when something is detected in less than 20cm (more like 7 in real life) this function will activate the servo, swinging it in the opposite direction
-  and turn on the yellow traffic light. When nothing is detected the yellow traffic light turns off and the servo goes back to its default position.
+  when something is detected in less than 20cm (more like 7 in real life) by the sonar, or the PIR detects any movement, the detectionSystem function
+  will return 1. That will cause this function to activate the servo, swinging it in the opposite direction and turn on the yellow traffic light. 
+  When nothing is detected the yellow traffic light turns off and the servo goes back to its default position.
 
   @params detection
   @returns none
@@ -226,7 +234,7 @@ void ejectorSeat(boolean detection) {
   }
 }
 /*
-  This function takes the input from the button and uses it to play 2 short beeps on the peizo when pressed
+  This function takes the input from the crash sensor and uses it to play 2 short beeps on the peizo when pressed
 
   @params none
   @returns none

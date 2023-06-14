@@ -1,5 +1,5 @@
 # Programming Logic
-## Engine Control <br>- Ignition (Line Sensor, Red & Green LED) <br>- Accelerator (Potentiometer)
+## Engine Control (DC Motor)<br>- Ignition (Line Sensor, Red & Green LED) <br>- Accelerator (Potentiometer)
 ```mermaid
  flowchart TD
     potInput([Potentiometer Input])
@@ -9,10 +9,10 @@
     lineSensorDecision{Does the line sensor detect something?}
     -->|Yes|switchFunction
     lineSensorDecision-->|No|complete
-    switchFunction(Alternate boolean switch function<br> value)
+    switchFunction(Alternate switch function <br>integer value)
     switchFunction-->switchDecision
 
-    switchDecision{What is the boolean <br>switch function value?}
+    switchDecision{What is the switch function value?}
     -->|1/TRUE|engineStart
     engineStart("- Start DC motor<br>- Turn on Green LED<br>- Turn off Red LED")
     -->engineSpeedDecision
@@ -38,16 +38,23 @@
 
     complete([End])
 ```
-## Ejector Seat (Sonar, PIR, Servo & Yellow LED)
-```mermaid 
-flowchart TD
+## Ejector Seat (Servo & Yellow LED)<br>- Detection System (Sonar & PIR)
+ ```mermaid
+ flowchart TD
     sonarInput([Sonar Input])
     PIRInput([PIR Input])
 
-    sonarInput-->Decision
-    PIRInput-->Decision
+    sonarInput-->sonarDecision
+    sonarDecision{Has something been detected<br>in less than 20cm?}
+    -->|1/TRUE|Decision
+    sonarDecision-->|0/FALSE|complete
 
-    Decision{Has something been detected?}
+    PIRInput-->PIRDecision
+    PIRDecision{Does the PIR detect movement?}
+    -->|1/TRUE|Decision
+    PIRDecision-->|0/FALSE|complete
+
+    Decision{Does the Sonar<br>OR<br>PIR output 1/TRUE?}
 
     Decision-->|Yes|on
 
@@ -55,7 +62,7 @@ flowchart TD
     on-->complete
 
     Decision-->|No|off
-    off(Turn off the yellow LED)
+    off(Deactivate the Servo & <br> turn off the yellow LED)
     off-->complete
 
 
