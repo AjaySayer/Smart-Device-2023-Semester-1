@@ -12,7 +12,7 @@ DateTime rightNow;  // used to store the current time.
 
 // DC Motor
 #define M2 5  // attach pin D5 Arduino to pin M2 of DFROBOT Motor Controller
-#define M2 5  // attach pin D5 Arduino to pin M2 of DFROBOT Motor Controller
+#define E2 6  // attach pin D5 Arduino to pin E2 of DFROBOT Motor Controller
 
 // Servo
 #include <Servo.h>
@@ -100,11 +100,12 @@ void setup() {
 void loop() {  
   // put your main code here, to run repeatedly:
 
+
   engineControl(engineIgnition(), engineSpeed());  // calls the engineControl, engineIgnition, and engineSpeed functions, with the latter two acting as parameters for the first
   ejectorSeat(detectionSystem()); // calls the ejectorSeat and detectionSystem function, with the ejectorSeat function acting as a parameter
   selfDestruct(); // calls the selfDestruct function
 
-  delay(200); // adds 200ms of delay so the code doesnt run too fast
+  delay(250); // adds 250ms of delay so the code doesnt run too fast
 }
 /*
   This function alternates the value of integer 'ignitionStatus' whilst the line sensor detects something. This essentially makes the line sensor act as a switch 
@@ -136,8 +137,8 @@ boolean engineIgnition() {
 */
 int engineSpeed() {
   int potValue = analogRead(pot);
-  Serial.print("potValue is: ");
-  Serial.println(potValue);
+  //Serial.print("potValue is: ");
+  //Serial.println(potValue);
   int speed = potValue / 4;  // Potentiometer inputs between 0-1024, DC motor only takes 0-256 so dividing the input by 4 keeps things simple
   Serial.print("Engine speed is: ");
   Serial.println(speed);
