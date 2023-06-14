@@ -139,7 +139,7 @@ int engineSpeed() {
   int potValue = analogRead(pot);
   //Serial.print("potValue is: ");
   //Serial.println(potValue);
-  int speed = potValue / 4;  // Potentiometer inputs between 0-1024, DC motor only takes 0-256 so dividing the input by 4 keeps things simple
+  int speed = potValue / 4;  // Potentiometer inputs between 0-1024, DC motor can only an input of 0-255 so dividing the input by 4 keeps things simple
   Serial.print("Engine speed is: ");
   Serial.println(speed);
   return speed;
@@ -152,7 +152,7 @@ int engineSpeed() {
   @returns none
 */
 void engineControl(boolean engineIgnition, int engineSpeed) {
-  if (engineIgnition == 1) {
+  if (engineIgnition == 1) { 
     digitalWrite(M2, HIGH);
     analogWrite(E2, engineSpeed);  //PWM Speed Control
     Serial.print("Engine speed is: ");
@@ -170,7 +170,10 @@ void engineControl(boolean engineIgnition, int engineSpeed) {
   }
 }
 /*
-  This function gets detects input from the Sonar sensor and PIR and outputs a return value of 1 if something is detected, and 0 if nothing is detected.
+  This function  detects input from the Sonar sensor and the PIR and outputs a return value of 1 if something is detected, and 0 if nothing is detected.
+  unfortunately the PIR can be too sensitive and detect what seems to be nothing, meaning that the detectionSystem function is stuck returning 1, keeping the 
+  servo fully activated and preventing the Sonar from doing its job. This function may also be responsible for a strange bug that causes the servo to randomly
+  activate/deactivate for a few hundred milliseconds every now and again.
 
   @params none
   @returns 1, 0
@@ -232,7 +235,7 @@ void selfDestruct() {
   bool isPressed = digitalRead(crashSensor);
   if (isPressed == LOW) {
     for (int i = 0; i < 2; i++) {
-      tone(piezoPin, 1000, 200);  // Play a tone at 1000 Hz for 200 milliseconds
+      tone(piezoPin, 1000, 200);  // Plays a tone at 1000 Hz for 200 milliseconds
       delay(300);                 // Wait for 300 milliseconds between beeps
     }
   }
